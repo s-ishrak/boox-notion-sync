@@ -1,0 +1,60 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # One-time bootstrap: the source was uploaded as source.tar.gz through the
+      # web UI; unpack it into the repo and commit it so the repo holds real files.
+      - name: Unpack uploaded source (first run only)
+        run: |
+          if [ -f source.tar.gz ]; then
+            tar -xzf source.tar.gz
+            git rm -q source.tar.gz
+            git config user.name "github-actions"
+            git config user.email "github-actions@users.noreply.github.com"
+            git add -A
+            git commit -qm "Unpack app source"
+            git push
+          fi
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleFdroidDebug --no-daemon --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: boox-notion-sync-apk
+          path: app/build/outputs/apk/fdroid/debug/*.apk
+
+      # Also publish the universal APK to the "apk" branch so it can be fetched with git.
+      - name: Publish APK to apk branch
+        run: |
+          mkdir /tmp/out
+          cp app/build/outputs/apk/fdroid/debug/*universal*.apk /tmp/out/boox-notion-sync.apk
+          cd /tmp/out
+          git init -q -b apk
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add boox-notion-sync.apk
+          git commit -qm "APK from ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" apk
