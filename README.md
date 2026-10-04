@@ -1,145 +1,217 @@
 # Boox → Notion Highlight Sync
 
-This is a fork of [Boox Rich Annotations](https://github.com/uroybd/BooxRichAnnotations) (MIT) that adds **automatic, free syncing of NeoReader highlights to a Notion database**: a Readwise-style flow without a paid service.
+**Automatically sync your NeoReader highlights from an Onyx Boox to Notion: free, no Readwise subscription, no manual exports.**
 
-It reads highlights directly from NeoReader's on-device database (no manual export, no root) and, about once an hour when the device is online, appends any new highlights to one Notion page per book.
+Highlight in NeoReader as usual. About once an hour, when your Boox is online, new highlights are added to a page for that book in your own Notion database.
+
+<p align="center">
+  <img src="docs/images/notion-database.png" alt="Notion database with one page per book, author and highlight count" width="800">
+</p>
+
+This is an extended version of [Boox Rich Annotations](https://github.com/uroybd/BooxRichAnnotations) by [@uroybd](https://github.com/uroybd) (MIT licensed), which does the hard part of reading NeoReader's annotations on the device. This project adds the Notion sync on top. All of the original app's export features still work.
 
 ## Contents
 
-- [How it works](#how-it-works)
+- [Features](#features)
+- [Screenshots](#screenshots)
 - [Requirements](#requirements)
-- [Setup](#setup)
+- [Setup (about 10 minutes)](#setup-about-10-minutes)
 - [What appears in Notion](#what-appears-in-notion)
+- [How it works](#how-it-works)
 - [Limitations](#limitations)
+- [Privacy](#privacy)
 - [Battery and resource use](#battery-and-resource-use)
 - [Troubleshooting](#troubleshooting)
-- [Building the APK](#building-the-apk)
+- [FAQ](#faq)
+- [Building from source](#building-from-source)
+- [Credits and license](#credits-and-license)
 
-## How it works
+## Features
 
-1. A background job (Android WorkManager) runs roughly every hour, only when the device has a network connection.
-2. It reads all NeoReader books and highlights from the Onyx content provider on the device.
-3. It compares them against a local list of highlights it has already sent. Anything new is grouped by book.
-4. For each book with new highlights, it finds the page in your Notion database whose **Name** exactly matches the book title, or creates a new page if none exists.
-5. It appends the new highlights to the end of that page and updates the book's **Highlights**, **Last Highlighted** and **Last Synced** properties.
+- **Automatic:** syncs in the background about once an hour, whenever the Boox is online.
+- **No exports, no root:** reads highlights straight from NeoReader's on-device database.
+- **One Notion page per book:** new highlights are appended to the book's page; existing pages are matched by title.
+- **Notes and context included:** each highlight keeps your note, page number, chapter and date.
+- **Works with an existing database:** e.g. one you already use for Kindle highlights, as long as it has the [required properties](#requirements).
+- **Free and private:** talks only to Notion's official API using your own integration token; no third-party server.
+- **E-ink friendly:** black-and-white UI with large touch targets.
 
-Books with nothing new are skipped entirely: no Notion requests are made, so their pages and **Last Edited** times are untouched.
+## Screenshots
+
+| A book page in Notion | Highlights on the page |
+| --- | --- |
+| <img src="docs/images/notion-book-properties.png" alt="Book page properties: Author, Highlights, Last Highlighted, Last Synced" width="400"> | <img src="docs/images/notion-book-highlights.png" alt="Highlights as quote blocks, each followed by page, chapter and date" width="400"> |
+
+| The app on a Boox (book view) |
+| --- |
+| <img src="screenshots/book_detail_page.png" alt="Book detail screen in the app on a Boox" width="350"> |
 
 ## Requirements
 
-- An Onyx Boox device with the built-in NeoReader app (developed on a Go Color 7 Gen 2; the base app was tested on a Tab Mini C)
-- Android 7.0 or later
-- A Notion account (the free plan works)
-- A Notion database with these properties, named exactly as shown:
+- An **Onyx Boox** e-reader with the built-in **NeoReader** app, running Android 7.0 or later. Developed on a Go Color 7 Gen 2; the original app was tested on a Tab Mini C. Other Boox models with NeoReader should work.
+- A **Notion** account. The free plan is fine.
+- A **Notion database** with these properties, named exactly as shown (capitalisation matters):
 
-  | Property | Type |
-  | --- | --- |
-  | `Name` | Title |
-  | `Author` | Text |
-  | `Highlights` | Number |
-  | `Last Highlighted` | Date |
-  | `Last Synced` | Date |
+  | Property | Type | Filled in by the app |
+  | --- | --- | --- |
+  | `Name` | Title | Book title (for new pages) |
+  | `Author` | Text | Author (for new pages) |
+  | `Highlights` | Number | Running count of highlights |
+  | `Last Highlighted` | Date | When the newest synced highlight was made |
+  | `Last Synced` | Date | When new highlights were last added |
 
-  Other properties (relations, created time, etc.) are fine and are left alone.
+  Extra properties (tags, ratings, relations, etc.) are fine. The app leaves them alone.
 
-## Setup
+## Setup (about 10 minutes)
 
-### 1. Create a Notion integration
+### 1. Create the Notion database
 
-1. Go to [notion.so/profile/integrations](https://www.notion.so/profile/integrations) and create a new **internal** integration in your workspace.
-2. Give it a name such as `Boox Sync`. It needs the **Read content**, **Update content** and **Insert content** capabilities (the defaults).
-3. Copy the **Internal Integration Secret** (starts with `ntn_` or `secret_`). Treat it like a password.
+Skip this if you already have a database with the properties above.
 
-### 2. Give the integration access to your database
+1. In Notion, create a new page and choose **Table** (a full-page database). Name it something like `Book Highlights`.
+2. The table already has a `Name` column. Add the other four columns from the table above: click **+** at the right of the header row, pick the type, and type the exact name.
+3. You can delete the default `Tags` column if Notion added one.
 
-1. Open your book database in Notion.
-2. Click **•••** (top right) → **Connections** → find your integration and add it.
+### 2. Create a Notion integration (your sync token)
 
-Without this step the app gets a "Could not find database" error.
+1. Go to **[notion.so/profile/integrations](https://www.notion.so/profile/integrations)** and click **New integration**.
+2. Give it a name (e.g. `Boox Sync`), pick your workspace, and keep the type as **Internal**.
+3. Make sure it has **Read content**, **Update content** and **Insert content** capabilities (the defaults).
+4. Save, then copy the **Internal Integration Secret** (it starts with `ntn_` or `secret_`). Keep it private; anyone with it can edit the pages you share with the integration.
 
-### 3. Install the app on the Boox
+### 3. Connect the integration to your database
 
-1. Download `boox-notion-sync.apk` from the [`apk` branch](https://github.com/s-ishrak/boox-notion-sync/tree/apk) of this repository (or from the latest run under **Actions → Build APK → Artifacts**).
-2. Copy it to the Boox (BOOXDrop, USB, or email) and open it.
-3. Allow installing apps from unknown sources when prompted.
+1. Open your database as a full page in Notion.
+2. Click **•••** in the top-right corner → **Connections** → search for your integration and add it.
 
-The app appears on the Boox as **Boox Rich Annotation**.
+The integration can only see pages you connect it to. If you skip this, syncing fails with "Could not find database".
 
-### 4. Connect the app to Notion
+### 4. Install the app on your Boox
 
-1. Open the app and tap the **⋮** menu → **Notion Sync**.
-2. Paste the integration secret into **Token**.
-3. Paste the database link (or its 32-character ID) into **Database**. To get the link, open the database as a full page in Notion and copy its URL.
+1. Download the latest **`boox-notion-sync.apk`** from the **[Releases page](https://github.com/s-ishrak/boox-notion-sync/releases/latest)**. You can download it directly on the Boox in its browser, or on a computer and transfer it with BOOXDrop, USB, or email.
+2. Open the APK on the Boox and allow installing from unknown sources when prompted.
+
+The app shows up as **Boox Rich Annotation**. It installs alongside the original app if you already have it.
+
+### 5. Connect the app to Notion
+
+1. Open the app and tap the **⋮** menu (top right) → **Notion Sync**.
+2. **Token:** paste the integration secret from step 2.
+3. **Database:** paste the database's link. In Notion, open the database as a full page, click **Share** → **Copy link** (or copy the URL from the browser). The 32-character database ID on its own also works.
 4. Tap **Save**, then **Sync now**.
 
-The status line shows the result, for example `Last sync 4 Oct, 14:45: 12 new highlight(s) in 3 book(s)`. From then on the hourly sync runs automatically.
+After a moment the status line shows something like `Last sync 4 Oct, 14:45: 12 new highlight(s) in 3 book(s)`. Check Notion and your books should be there. From now on it syncs by itself.
 
-### 5. Keep it running in the background
+### 6. Stop the Boox from freezing the app (important)
 
-Boox devices freeze background apps aggressively, which stops the hourly sync. In the Boox system settings, open the app management / **App Freeze** settings and exclude **Boox Rich Annotation** from freezing. Menu names vary by firmware version.
+Boox firmware freezes background apps to save battery, which stops the hourly sync. Exclude the app from this:
+
+- Open the Boox **Settings** → **Apps** (or **App Management**) → **App Freeze**, and turn freezing **off** for **Boox Rich Annotation**.
+- Menu names differ between firmware versions. On some models it's in the app's long-press menu on the home screen under **Freeze** or **Optimization**.
+
+If syncing seems to stop after a while, this is almost always the reason.
 
 ## What appears in Notion
 
-Each new highlight is appended to its book's page as:
+Each new highlight is appended to the end of its book's page as:
 
-- a **quote block** with the highlighted text,
-- a paragraph starting with **Note:** if you wrote a note on the highlight,
-- a grey italic line with the page, chapter and date, e.g. *p. 42 · Chapter Six · 4 Oct 2026*.
+1. a **quote block** with the highlighted text,
+2. a **Note:** paragraph, if you wrote a note on that highlight,
+3. a small grey line with the page, chapter and date, e.g. *p. 42 · Chapter Six · 4 Oct 2026*.
 
-Book page properties:
+The book's `Highlights`, `Last Highlighted` and `Last Synced` properties are updated at the same time. Books with no new highlights aren't touched at all, so their **Last Edited** time in Notion stays the same.
 
-| Property | Set to |
-| --- | --- |
-| `Name`, `Author` | Book title and author from NeoReader (only when the app creates the page) |
-| `Highlights` | Previous value plus the number of new highlights |
-| `Last Highlighted` | When the newest synced highlight was made on the Boox |
-| `Last Synced` | When new highlights were last added to this book (not the last time the app ran) |
+## How it works
+
+1. Android's WorkManager wakes the app roughly every hour, only when there's a network connection.
+2. The app reads all books and highlights from NeoReader's content provider on the device.
+3. It compares them with a local list of highlights it has already sent, so only new highlights go further.
+4. For each book with new highlights, it looks for a page in your database whose `Name` exactly matches the book title, or creates one.
+5. It appends the highlights and updates the book's properties through the official Notion API.
 
 ## Limitations
 
-- **One-way, new highlights only.** Editing or deleting a highlight on the Boox does not change Notion, and editing in Notion does not affect the Boox.
-- **The first sync sends everything** already highlighted in NeoReader.
-- **Books are matched by exact title.** If a book already exists in your database under the same title (for example from a Kindle import), highlights go onto that page. A slightly different title creates a new page.
-- **Reinstalling or clearing the app's data** resets its record of what was sent, so all highlights are sent again (duplicates).
-- **NeoReader's data access is undocumented.** A Boox firmware update could change it and break syncing.
-- Only highlights made in **NeoReader** are synced, not other reading apps.
+- **One-way, new highlights only.** Editing or deleting a highlight on the Boox doesn't change Notion, and changes in Notion don't reach the Boox.
+- **The first sync sends every existing highlight** in NeoReader.
+- **Books are matched by exact title.** If your database already has a page with the same title (e.g. from a Kindle import), highlights are added to it. A slightly different title creates a new page; rename one to match and future highlights go to the right place.
+- **Reinstalling the app or clearing its data** resets its memory of what was sent, so everything is sent again (duplicates).
+- **Only NeoReader highlights** are synced, not those made in KOReader, Kindle or other apps.
+- **NeoReader's data access isn't officially documented.** A Boox firmware update could change it and break syncing; please open an issue if that happens.
+- Highlights sync roughly hourly, not instantly. Use **Sync now** when you want them straight away.
+
+## Privacy
+
+- The app talks only to `api.notion.com`, using your own integration token. There is no server in between, no analytics, and no account.
+- The token and database ID are stored in the app's private storage on your Boox.
+- The integration only has access to the pages you connect it to in Notion.
 
 ## Battery and resource use
 
-Light. Nothing runs between syncs. Each run reads the local highlight list (a fraction of a second) and contacts Notion only for books with new highlights; a run with nothing new makes no network requests. The record of sent highlights is about a hundred bytes per highlight.
+Light. Nothing runs between syncs. Each hourly run reads the local highlight list (a fraction of a second) and contacts Notion only for books with new highlights; a run with nothing new makes no network requests. The app is about 7 MB, and its record of sent highlights is roughly a hundred bytes per highlight.
 
 ## Troubleshooting
 
-The **Notion Sync** screen shows the last result, including errors.
+Open **⋮ → Notion Sync** in the app; the status line shows the last result, including errors.
 
-| Message | Fix |
+| Message | What to do |
 | --- | --- |
-| `API token is invalid` (401) | Re-copy the integration secret into **Token** and tap **Save**. |
-| `Could not find database` (404) | Connect the integration to the database (Setup step 2), and check the database link. |
-| `... is not a property that exists` / validation error (400) | A required property is missing or named differently. See [Requirements](#requirements). |
-| `Last sync failed (network)` | The device was offline; the next hourly run retries. |
-| Status never changes | The app is probably frozen. See Setup step 5, then tap **Sync now** once. |
-| `0 new highlight(s)` but you just highlighted | Make sure the highlight was made in NeoReader, then tap **Sync now**. |
+| `API token is invalid` (401) | Copy the integration secret again (step 2), paste it into **Token**, tap **Save**. |
+| `Could not find database` (404) | Connect the integration to the database (step 3) and check the database link. |
+| `... is not a property that exists` or another 400 error | A required property is missing, misspelled, or the wrong type. Compare with [Requirements](#requirements). |
+| `Last sync failed (network)` | The Boox was offline. The next hourly run retries automatically. |
+| The status never changes | The app is being frozen. See step 6, then tap **Sync now** once. |
+| `0 new highlight(s)` right after highlighting | Make sure you highlighted in NeoReader (not another reader app), then tap **Sync now**. |
+| Highlights went to a new page instead of my existing one | The titles differ. Rename one to match exactly. |
 
-## Building the APK
+## FAQ
 
-Every push to `main` builds the APK with GitHub Actions (`.github/workflows/build.yml`):
+**Does it work on Boox models other than the Go Color 7?**
+It should work on any Boox that uses NeoReader. Reports for other models are welcome in [Issues](https://github.com/s-ishrak/boox-notion-sync/issues).
 
-- the APKs are attached to the run as the `boox-notion-sync-apk` artifact, and
-- the universal APK is published to the `apk` branch as `boox-notion-sync.apk`.
+**Can I use my existing Kindle highlights database?**
+Yes, if it has the five required properties. Books with the same title share a page.
 
-To build locally instead (JDK 21 and the Android SDK required):
+**Does it sync PDF annotations or handwritten notes?**
+It has been tested with EPUB books. PDF text highlights may work if NeoReader stores them the same way; reports are welcome. Handwritten scribbles aren't text, so they're not synced.
+
+**Will it sync highlights I made before installing?**
+Yes. The first sync sends everything already in NeoReader.
+
+**Can I change how often it syncs?**
+Not from the app yet; it's set to about once an hour. **Sync now** runs it immediately.
+
+## Building from source
+
+Every push to `main` builds the APK with GitHub Actions (`.github/workflows/build.yml`). To build locally (JDK 21 and the Android SDK required):
 
 ```bash
+git clone https://github.com/s-ishrak/boox-notion-sync.git
+cd boox-notion-sync
 ./gradlew assembleFdroidDebug
 # APK: app/build/outputs/apk/fdroid/debug/app-fdroid-universal-debug.apk
 ```
 
-The sync code lives in `NotionSync.kt` (sync logic), `NotionClient.kt` (Notion API), `SyncWorker.kt` (hourly job) and `NotionSettingsActivity.kt` (settings screen).
+The sync code is in `app/src/main/java/me/utsob/booxrichannotation/`:
+
+- `NotionSync.kt`: sync logic (which highlights are new, matching books to pages)
+- `NotionClient.kt`: Notion API calls
+- `SyncWorker.kt`: the hourly background job
+- `NotionSettingsActivity.kt`: the Notion Sync settings screen
+
+Issues and pull requests are welcome.
+
+## Credits and license
+
+- Built on **[Boox Rich Annotations](https://github.com/uroybd/BooxRichAnnotations)** by [@uroybd](https://github.com/uroybd), which provides the NeoReader annotation reading and export features.
+- Released under the [MIT License](LICENSE), the same as the original project.
+- Not affiliated with Onyx Boox or Notion.
 
 ---
 
-*The original Boox Rich Annotations documentation follows.*
+## Original Boox Rich Annotations documentation
+
+*The original project's README follows. The export features described there are all still available in this app.*
+
 
 # Boox Rich Annotation
 
