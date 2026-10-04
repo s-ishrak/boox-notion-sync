@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Page background -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,25 L78,25 L78,83 L30,83 Z" />
+    
+    <!-- Page border -->
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"
+        android:pathData="M30,25 L78,25 L78,83 L30,83 Z" />
+    
+    <!-- Folded corner -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M70,25 L78,25 L78,33 Z" />
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="1.5"
+        android:fillColor="#00000000"
+        android:pathData="M70,25 L78,33 M70,25 L78,25 L78,33" />
+    
+    <!-- Annotation lines -->
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M38,38 L60,38" />
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M38,46 L65,46" />
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M38,54 L58,54" />
+    
+    <!-- Highlight bar (colored) -->
+    <path
+        android:fillColor="#FFD700"
+        android:fillAlpha="0.3"
+        android:pathData="M36,42 L67,42 L67,50 L36,50 Z" />
+    
+    <!-- Sparkle 1 (top right) -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M72,40 L73,42 L75,43 L73,44 L72,46 L71,44 L69,43 L71,42 Z" />
+    
+    <!-- Sparkle 2 (bottom right) -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M68,68 L69,70 L71,71 L69,72 L68,74 L67,72 L65,71 L67,70 Z" />
+    
+    <!-- Sparkle 3 (small, middle right) -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M74,56 L74.5,57 L75.5,57.5 L74.5,58 L74,59 L73.5,58 L72.5,57.5 L73.5,57 Z" />
+    
+    <!-- Pen/pencil icon -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M42,62 L44,64 L46,62 L44,60 Z" />
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M44,64 L40,68" />
+</vector>

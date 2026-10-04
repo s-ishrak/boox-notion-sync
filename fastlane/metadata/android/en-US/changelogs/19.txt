@@ -1,0 +1,1 @@
+Added the book's on-device file path to exports: as "path" in JSON, "book.path" in text/Pebble templates, and a "Path" column in CSV (replacing "Book ID", same value as before). JSON exports also no longer escape forward slashes.

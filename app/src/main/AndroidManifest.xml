@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Permission to read from Onyx content provider -->
+    <uses-permission android:name="com.onyx.READ_APP_DATA" />
+    
+    <!-- Permission for internet access (to check for updates) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- Permission to write to external storage for downloading JSON -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <!-- Declare that we need to query the Onyx Kreader app -->
+    <queries>
+        <package android:name="com.onyx.kreader" />
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.BooxRichAnnotation">
+        
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity
+            android:name=".BookDetailActivity"
+            android:exported="false"
+            android:label="Annotations"
+            android:theme="@style/Theme.BooxRichAnnotation.WithActionBar"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".PreferencesActivity"
+            android:exported="false"
+            android:label="Preferences"
+            android:theme="@style/Theme.BooxRichAnnotation.WithActionBar"
+            android:parentActivityName=".MainActivity" />
+        
+        <activity
+            android:name=".NotionSettingsActivity"
+            android:exported="false"
+            android:label="Notion Sync"
+            android:theme="@style/Theme.BooxRichAnnotation.WithActionBar"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".TemplateEditorActivity"
+            android:exported="false"
+            android:label="Template Editor"
+            android:theme="@style/Theme.BooxRichAnnotation.WithActionBar"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".PreferencesActivity" />
+        
+        <!-- FileProvider for sharing annotations -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/fileprovider_paths" />
+        </provider>
+        
+    </application>
+
+</manifest>

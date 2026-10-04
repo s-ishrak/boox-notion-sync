@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pebble Template Editor"
+        android:textColor="#000000"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Available variables:\n• book.title, book.authors, book.format, book.totalPages\n• annotations (list): pageNumber, paragraphIndex, quote, note, chapter, style, color, createdAt\n\nFunctions:\n• date: {{ annotation.createdAt | date(&quot;yyyy-MM-dd HH:mm:ss&quot;) }}\n• percentage: {{ percentage(119, 738, 2) }} returns 16.13"
+        android:textColor="#000000"
+        android:textSize="17sp"
+        android:paddingBottom="12dp"
+        android:lineSpacingMultiplier="1.3"
+        tools:ignore="HardcodedText" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_card"
+        android:padding="8dp">
+
+        <EditText
+            android:id="@+id/template_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter your template here..."
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:minLines="15"
+            android:textColor="#000000"
+            android:textColorHint="#000000"
+            android:textSize="17sp"
+            android:fontFamily="monospace"
+            android:scrollbars="vertical"
+            tools:ignore="Autofill,HardcodedText,LabelFor" />
+
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/error_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="17sp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:minHeight="40dp"
+        android:maxHeight="80dp"
+        android:maxLines="3"
+        android:ellipsize="end"
+        android:scrollbars="vertical"
+        tools:ignore="HardcodedText" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btn_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset to Default"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:background="@drawable/bg_dialog_button"
+            android:backgroundTint="@null"
+            android:padding="16dp"
+            android:layout_marginEnd="8dp"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:background="@drawable/bg_dialog_button"
+            android:backgroundTint="@null"
+            android:padding="16dp"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
+</LinearLayout>

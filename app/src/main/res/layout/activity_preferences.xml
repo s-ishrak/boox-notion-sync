@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Export Settings"
+        android:textColor="#000000"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Default Export Format"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="This format will be used when clicking the save button on each book."
+        android:textColor="#000000"
+        android:textSize="17sp"
+        android:paddingBottom="12dp"
+        tools:ignore="HardcodedText" />
+
+    <RadioGroup
+        android:id="@+id/format_radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:background="@drawable/bg_card">
+
+        <RadioButton
+            android:id="@+id/radio_json"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="JSON (JavaScript Object Notation)"
+            android:textColor="#000000"
+            android:textSize="19sp"
+            android:padding="16dp"
+            tools:ignore="HardcodedText" />
+
+        <RadioButton
+            android:id="@+id/radio_csv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="CSV (Comma-Separated Values)"
+            android:textColor="#000000"
+            android:textSize="19sp"
+            android:padding="16dp"
+            tools:ignore="HardcodedText" />
+
+        <RadioButton
+            android:id="@+id/radio_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Text (Custom Template)"
+            android:textColor="#000000"
+            android:textSize="19sp"
+            android:padding="16dp"
+            tools:ignore="HardcodedText" />
+
+    </RadioGroup>
+
+    <!-- Text Export Settings -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Text Export"
+        android:textColor="#000000"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="File Extension"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:paddingBottom="8dp"
+        tools:ignore="HardcodedText" />
+
+    <EditText
+        android:id="@+id/text_extension_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="md"
+        android:inputType="text"
+        android:textColor="#000000"
+        android:textColorHint="#000000"
+        android:textSize="20sp"
+        android:padding="16dp"
+        android:background="@drawable/bg_card"
+        android:maxLength="10"
+        tools:ignore="Autofill,HardcodedText,LabelFor" />
+
+    <Button
+        android:id="@+id/btn_edit_template"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Edit Template"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:background="@drawable/bg_dialog_button"
+        android:backgroundTint="@null"
+        android:padding="16dp"
+        tools:ignore="HardcodedText" />
+
+    <!-- Save Path Settings -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Location"
+        android:textColor="#000000"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Default Folder"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:paddingBottom="8dp"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/save_path_display"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Downloads"
+        android:textColor="#000000"
+        android:textSize="17sp"
+        android:padding="16dp"
+        android:background="@drawable/bg_card"
+        android:minHeight="48dp"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btn_choose_folder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Choose Folder"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:background="@drawable/bg_dialog_button"
+        android:backgroundTint="@null"
+        android:padding="16dp"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btn_reset_folder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Reset to Downloads"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:background="@drawable/bg_dialog_button"
+        android:backgroundTint="@null"
+        android:padding="16dp"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Note: The menu button (⋮) always provides access to all export formats."
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:paddingTop="20dp"
+        android:lineSpacingMultiplier="1.2"
+        tools:ignore="HardcodedText" />
+
+</LinearLayout>
+</ScrollView>

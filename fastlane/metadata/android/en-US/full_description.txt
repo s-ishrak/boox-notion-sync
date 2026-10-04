@@ -1,0 +1,18 @@
+Boox Rich Annotation extracts and exports the highlights, notes, and annotations you make in the NeoReader app on Onyx Boox e-readers, so you can back them up or move them into another tool.
+
+Requires an Onyx Boox device with the NeoReader app installed; it reads annotation data directly from NeoReader's on-device content provider.
+
+Features:
+
+* Browse your library of books (EPUB, MOBI, AZW/AZW3) in one place
+* Search books instantly by title or author
+* Browse by book, or see every annotation from every book grouped under collapsible book headers
+* View each annotation as its own card, with style, page, chapter, timestamp, quote, and note
+* Select individual annotations, a whole book, or everything across multiple books, then export or share just that selection
+* Export annotations with colors, styles, and notes preserved
+* Export to JSON, CSV, or a customizable text format (Markdown by default), including multi-book exports
+* Create custom export templates with the Pebble templating engine, with syntax highlighting in the editor
+* Choose any folder on your device to save exported files
+* Configure a default export format and text template in preferences
+* Automatically deduplicates annotations that were edited more than once
+* Pure black-and-white theme with zero animations, designed for e-ink displays
