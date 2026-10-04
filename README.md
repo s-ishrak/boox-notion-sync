@@ -38,6 +38,12 @@ This is an extended version of [Boox Rich Annotations](https://github.com/uroybd
 
 ## Screenshots
 
+**Your library in Notion:** one row per book, with its highlight count.
+
+<p align="center">
+  <img src="docs/images/notion-book-list.png" alt="Notion table listing books with author, highlight count, created and last edited times" width="800">
+</p>
+
 | A book page in Notion | Highlights on the page |
 | --- | --- |
 | <img src="docs/images/notion-book-properties.png" alt="Book page properties: Author, Highlights, Last Highlighted, Last Synced" width="400"> | <img src="docs/images/notion-book-highlights.png" alt="Highlights as quote blocks, each followed by page, chapter and date" width="400"> |
