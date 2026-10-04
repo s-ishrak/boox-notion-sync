@@ -61,8 +61,10 @@ object NotionSync {
                 .sortedWith(compareBy({ it.pageNumber ?: Int.MAX_VALUE }, { it.locationBeginInt ?: 0 }, { it.createdAt ?: 0L }))
             if (newOnes.isEmpty()) return@forEach
 
-            fun lookUpOrCreate() = client.findBookPage(databaseId, bookKey)
-                ?: client.createBookPage(databaseId, book.getDisplayTitle(), book.getDisplayAuthors(), bookKey)
+            // Books are matched to existing pages by exact title (Name).
+            val title = book.getDisplayTitle()
+            fun lookUpOrCreate() = client.findBookPage(databaseId, title)
+                ?: client.createBookPage(databaseId, title, book.getDisplayAuthors())
 
             var pageId = bookPages.optString(bookKey).ifBlank { null } ?: lookUpOrCreate()
             val blocks = newOnes.flatMap { blocksFor(it) }
@@ -75,14 +77,21 @@ object NotionSync {
                 client.appendBlocks(pageId, blocks)
             }
             bookPages.put(bookKey, pageId)
-            client.setLastSynced(pageId, isoNow())
 
-            // Record progress per book so a later failure doesn't resend these.
+            // Record progress right after appending so a later failure doesn't resend these.
             newOnes.forEach { synced.add(keyOf(bookKey, it)) }
             prefs.edit()
                 .putStringSet(KEY_SYNCED, HashSet(synced))
                 .putString(KEY_BOOK_PAGES, bookPages.toString())
                 .apply()
+
+            val lastHighlighted = newOnes.mapNotNull { it.createdAt }.maxOrNull() ?: System.currentTimeMillis()
+            client.updateBookProps(
+                pageId,
+                highlights = client.getHighlightCount(pageId) + newOnes.size,
+                lastHighlightedIso = iso(lastHighlighted),
+                lastSyncedIso = iso(System.currentTimeMillis())
+            )
             newCount += newOnes.size
             bookCount++
         }
@@ -117,6 +126,6 @@ object NotionSync {
         .put("type", type)
         .put(type, JSONObject().put("rich_text", richText))
 
-    private fun isoNow() = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US).format(Date())
+    private fun iso(millis: Long) = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US).format(Date(millis))
     private fun displayNow() = SimpleDateFormat("d MMM, HH:mm", Locale.getDefault()).format(Date())
 }

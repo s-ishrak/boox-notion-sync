@@ -14,26 +14,32 @@ class NotionClient(private val token: String) {
 
     class NotionException(val code: Int, message: String) : IOException("Notion $code: $message")
 
-    /** Returns the page id of the book with this Book ID in the database, or null. */
-    fun findBookPage(databaseId: String, bookId: String): String? {
+    /** Returns the page id of the book whose Name equals [title] in the database, or null. */
+    fun findBookPage(databaseId: String, title: String): String? {
         val body = JSONObject().put(
             "filter", JSONObject()
-                .put("property", "Book ID")
-                .put("rich_text", JSONObject().put("equals", bookId))
+                .put("property", "Name")
+                .put("title", JSONObject().put("equals", title))
         ).put("page_size", 1)
         val results = request("POST", "databases/$databaseId/query", body).getJSONArray("results")
         return if (results.length() > 0) results.getJSONObject(0).getString("id") else null
     }
 
-    fun createBookPage(databaseId: String, title: String, author: String, bookId: String): String {
+    fun createBookPage(databaseId: String, title: String, author: String): String {
         val props = JSONObject()
             .put("Name", JSONObject().put("title", richText(title)))
             .put("Author", JSONObject().put("rich_text", richText(author)))
-            .put("Book ID", JSONObject().put("rich_text", richText(bookId)))
         val body = JSONObject()
             .put("parent", JSONObject().put("database_id", databaseId))
             .put("properties", props)
         return request("POST", "pages", body).getString("id")
+    }
+
+    /** Current value of the page's "Highlights" number property (0 if empty). */
+    fun getHighlightCount(pageId: String): Int {
+        val props = request("GET", "pages/$pageId", null).getJSONObject("properties")
+        val highlights = props.optJSONObject("Highlights") ?: return 0
+        return if (highlights.isNull("number")) 0 else highlights.getDouble("number").toInt()
     }
 
     /** Appends blocks to a page, 100 per request (Notion's limit). */
@@ -44,17 +50,21 @@ class NotionClient(private val token: String) {
         }
     }
 
-    fun setLastSynced(pageId: String, isoDate: String) {
-        val props = JSONObject().put("Last synced", JSONObject().put("date", JSONObject().put("start", isoDate)))
+    /** Updates the book's Highlights count, Last Highlighted and Last Synced properties. */
+    fun updateBookProps(pageId: String, highlights: Int, lastHighlightedIso: String, lastSyncedIso: String) {
+        val props = JSONObject()
+            .put("Highlights", JSONObject().put("number", highlights))
+            .put("Last Highlighted", JSONObject().put("date", JSONObject().put("start", lastHighlightedIso)))
+            .put("Last Synced", JSONObject().put("date", JSONObject().put("start", lastSyncedIso)))
         request("PATCH", "pages/$pageId", JSONObject().put("properties", props))
     }
 
-    private fun request(method: String, path: String, body: JSONObject, retried: Boolean = false): JSONObject {
+    private fun request(method: String, path: String, body: JSONObject?, retried: Boolean = false): JSONObject {
         val req = Request.Builder()
             .url("https://api.notion.com/v1/$path")
             .header("Authorization", "Bearer $token")
             .header("Notion-Version", NOTION_VERSION)
-            .method(method, body.toString().toRequestBody(JSON))
+            .method(method, body?.toString()?.toRequestBody(JSON))
             .build()
         http.newCall(req).execute().use { resp ->
             val text = resp.body?.string() ?: ""
